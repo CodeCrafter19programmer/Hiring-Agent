@@ -2,7 +2,7 @@
 
 A modern Next.js TypeScript frontend for the Hiring Agent Manager platform, featuring AI-powered recruitment automation with a clean, responsive UI.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/CodeCrafter19programme/Hiring-Agent&root-directory=hiring-agent-frontend&project-name=hiring-agent-frontend&repository-name=Hiring-Agent&env=NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_NAME,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY&envDescription=Set%20your%20API%20URL%20and%20optional%20Supabase%20keys.&envLink=https://github.com/CodeCrafter19programme/Hiring-Agent/tree/main/hiring-agent-frontend#-environment-variables)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/CodeCrafter19programmer/Hiring-Agent&root-directory=hiring-agent-frontend&project-name=hiring-agent-frontend&repository-name=Hiring-Agent&env=NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_NAME,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY&envDescription=Set%20your%20API%20URL%20and%20optional%20Supabase%20keys.&envLink=https://github.com/CodeCrafter19programmer/Hiring-Agent/tree/main/hiring-agent-frontend#-environment-variables)
 
 ## 🚀 Features
 
