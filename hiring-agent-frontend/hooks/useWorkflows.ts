@@ -28,9 +28,9 @@ export function useWorkflowLog(id: string) {
     queryKey: ['workflow-log', id],
     queryFn: () => api.get<{ data: WorkflowLog }>(`/workflows/logs/${id}`),
     enabled: !!id,
-    refetchInterval: (data) => {
-      // Poll every 3 seconds if status is queued or running
-      const status = data?.data?.status;
+    refetchInterval: (query) => {
+      // React Query v5: callback receives the Query instance
+      const status = query.state.data?.data?.status;
       return status === 'queued' || status === 'running' ? 3000 : false;
     },
   });
