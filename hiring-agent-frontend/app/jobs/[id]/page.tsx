@@ -6,7 +6,7 @@ import { Topbar } from "@/components/layout/Topbar";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { useJob, useUpdateJob } from "@/hooks/useJobs";
+import { useJob, useUpdateJob, type Job } from "@/hooks/useJobs";
 import { useState, useEffect } from "react";
 
 export default function JobDetailPage() {
@@ -18,7 +18,7 @@ export default function JobDetailPage() {
   const updateJob = useUpdateJob(id);
 
   const [title, setTitle] = useState("");
-  const [status, setStatus] = useState("open");
+  const [status, setStatus] = useState<Job["status"]>("open");
 
   useEffect(() => {
     if (data?.data) {
@@ -54,7 +54,7 @@ export default function JobDetailPage() {
                     <select
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                       value={status}
-                      onChange={(e) => setStatus(e.target.value)}
+                      onChange={(e) => setStatus(e.target.value as Job["status"])}
                     >
                       <option value="open">Open</option>
                       <option value="closed">Closed</option>
