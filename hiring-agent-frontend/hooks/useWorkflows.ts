@@ -17,18 +17,18 @@ export interface WorkflowLog {
 }
 
 export function useWorkflowLogs(params?: Record<string, any>) {
-  return useQuery({
+  return useQuery<{ data: WorkflowLog[] }>({
     queryKey: ['workflow-logs', params],
     queryFn: () => api.get<{ data: WorkflowLog[] }>('/workflows/logs', params),
   });
 }
 
 export function useWorkflowLog(id: string) {
-  return useQuery({
+  return useQuery<{ data: WorkflowLog }>({
     queryKey: ['workflow-log', id],
     queryFn: () => api.get<{ data: WorkflowLog }>(`/workflows/logs/${id}`),
     enabled: !!id,
-    refetchInterval: (data: { data?: WorkflowLog }) => {
+    refetchInterval: (data) => {
       // Poll every 3 seconds if status is queued or running
       const status = data?.data?.status;
       return status === 'queued' || status === 'running' ? 3000 : false;
