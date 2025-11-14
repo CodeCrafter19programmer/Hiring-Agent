@@ -31,7 +31,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/50">
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-transparent">
       <Card className="w-full max-w-md">
         <div className="p-8">
           <h1 className="mb-6 text-center text-2xl font-bold">Hiring Agent Manager</h1>

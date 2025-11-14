@@ -40,9 +40,11 @@ export default function NewAgentPage() {
             <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
               <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} required />
               <div>
-                <label className="mb-1.5 block text-sm font-medium">Type</label>
+                <label htmlFor="type" className="mb-1.5 block text-sm font-medium">Type</label>
                 <select
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  id="type"
+                  title="Type"
+                  className="h-10 w-full rounded-md border px-3 text-sm text-foreground border-white/20 bg-white/60 dark:bg-white/10 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/30 focus:ring-offset-2"
                   value={type}
                   onChange={(e) => setType(e.target.value)}
                 >
@@ -52,9 +54,11 @@ export default function NewAgentPage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium">Config (JSON)</label>
+                <label htmlFor="config" className="mb-1.5 block text-sm font-medium">Config (JSON)</label>
                 <textarea
-                  className="h-40 w-full rounded-md border border-input bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  id="config"
+                  title="Config JSON"
+                  className="h-40 w-full rounded-md border p-3 text-sm text-foreground border-white/20 bg-white/60 dark:bg-white/10 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/30 focus:ring-offset-2"
                   value={config}
                   onChange={(e) => setConfig(e.target.value)}
                 />

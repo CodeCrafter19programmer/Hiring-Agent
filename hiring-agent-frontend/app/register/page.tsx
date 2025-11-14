@@ -33,7 +33,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/50">
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-transparent">
       <Card className="w-full max-w-md">
         <div className="p-8">
           <h1 className="mb-6 text-center text-2xl font-bold">Create an account</h1>
@@ -42,9 +42,11 @@ export default function RegisterPage() {
             <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Role</label>
+              <label htmlFor="role" className="mb-1.5 block text-sm font-medium">Role</label>
               <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                id="role"
+                title="Role"
+                className="h-10 w-full rounded-md border px-3 text-sm text-foreground border-white/20 bg-white/60 dark:bg-white/10 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/30 focus:ring-offset-2"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >

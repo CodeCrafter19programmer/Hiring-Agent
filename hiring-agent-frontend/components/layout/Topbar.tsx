@@ -10,12 +10,12 @@ export function Topbar() {
   const { user } = useAuth();
 
   return (
-    <header className="fixed left-64 right-0 top-0 z-30 h-16 border-b bg-card">
+    <header className="fixed left-64 right-0 top-0 z-30 h-16 border-b border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl">
       <div className="flex h-full items-center justify-between px-6">
         <div className="flex-1" />
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <button className="relative rounded-md p-2 hover:bg-muted" aria-label="Notifications">
+          <button className="relative rounded-md p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Notifications">
             <Bell className="h-5 w-5" />
             <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
           </button>
