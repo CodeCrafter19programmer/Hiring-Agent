@@ -117,7 +117,7 @@ export default function UsersPage() {
           </div>
         </Card>
 
-        <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New User">
+        <Modal open={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New User">
           <form onSubmit={handleCreateUser} className="space-y-4">
             <Input 
               label="Full Name" 

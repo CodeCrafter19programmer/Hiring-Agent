@@ -119,7 +119,7 @@ export default function CandidatesPage() {
           </div>
         </Card>
 
-        <Modal open={showUploadModal} onOpenChange={setShowUploadModal} title="Upload Candidate CV">
+        <Modal open={showUploadModal} onClose={() => setShowUploadModal(false)} title="Upload Candidate CV">
           <form onSubmit={handleUpload} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-sm font-medium">CV File (PDF or Word)</label>
