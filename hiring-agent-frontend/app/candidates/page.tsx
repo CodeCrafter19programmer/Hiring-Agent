@@ -24,6 +24,9 @@ export default function CandidatesPage() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterJob, setFilterJob] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -71,6 +74,54 @@ export default function CandidatesPage() {
             Upload CV
           </Button>
         </div>
+
+        {/* Search and Filters */}
+        <Card className="mb-6">
+          <div className="p-4">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Input
+                label="Search"
+                placeholder="Name, email, or skill..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <div>
+                <label htmlFor="filter-job" className="mb-1.5 block text-sm font-medium">
+                  Filter by Job
+                </label>
+                <select
+                  id="filter-job"
+                  title="Filter by Job"
+                  className="h-10 w-full rounded-md border px-3 text-sm text-foreground border-white/20 bg-white/60 dark:bg-white/10 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/30"
+                  value={filterJob}
+                  onChange={(e) => setFilterJob(e.target.value)}
+                >
+                  <option value="all">All Jobs</option>
+                  <option value="senior-developer">Senior Developer</option>
+                  <option value="product-manager">Product Manager</option>
+                  <option value="ux-designer">UX Designer</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="filter-status" className="mb-1.5 block text-sm font-medium">
+                  Filter by Status
+                </label>
+                <select
+                  id="filter-status"
+                  title="Filter by Status"
+                  className="h-10 w-full rounded-md border px-3 text-sm text-foreground border-white/20 bg-white/60 dark:bg-white/10 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/30"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                  <option value="all">All Status</option>
+                  <option value="shortlisted">Shortlisted</option>
+                  <option value="pending">Pending Review</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </Card>
 
         <Card>
           <div className="p-6">

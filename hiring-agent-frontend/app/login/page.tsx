@@ -34,11 +34,12 @@ export default function LoginPage() {
     <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-transparent">
       <Card className="w-full max-w-md">
         <div className="p-8">
-          <h1 className="mb-6 text-center text-2xl font-bold">Hiring Agent Manager</h1>
+          <h1 className="mb-2 text-center text-2xl font-bold">Hiring Agent Manager</h1>
+          <p className="mb-6 text-center text-sm text-muted-foreground">Internal Staff Login</p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
             <Button type="submit" className="w-full" isLoading={loading}>
               Login
             </Button>

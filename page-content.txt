@@ -1,0 +1,485 @@
+HIRING AGENT MANAGER — PAGE-BY-PAGE SPECIFICATION (FINAL)
+Internal hiring AI system — only Admin and Recruiter users.
+1. /login
+Purpose:
+
+Authenticate Admin or Recruiter.
+
+UI Requirements:
+
+Centered login card
+
+Inputs: email, password
+
+Dropdown: Admin / Recruiter
+
+Button: Login
+
+Error alerts for wrong credentials
+
+Light/Dark mode compatible
+
+Connects To:
+
+POST /auth/login
+
+2. /dashboard
+Purpose:
+
+High-level summary for Admin & Recruiter.
+
+UI Elements:
+
+Cards (4 total):
+
+Total Jobs
+
+Total Candidates
+
+Total Agents
+
+Active Workflows
+
+Charts:
+
+Candidate per job (bar chart)
+
+Workflow activity timeline (line chart)
+
+Tables:
+
+Recent candidates (Name, Job, Score, Status)
+
+Connects To:
+
+GET /dashboard/data
+
+3. /jobs
+Purpose:
+
+View all jobs.
+
+UI Elements:
+
+Button: Create Job
+
+Table columns:
+
+Job Title
+
+Department
+
+Created By (Recruiter)
+
+Candidates Count
+
+Status (Active/Closed)
+
+Actions (View)
+
+Connects To:
+
+GET /jobs
+
+4. /jobs/create
+Purpose:
+
+Admin/Recruiter creates a new job.
+
+Form Fields:
+
+Job Title (required)
+
+Department (dropdown)
+
+Description (rich text)
+
+Requirements (textarea or list builder)
+
+Status: Active / Inactive
+
+Connects To:
+
+POST /jobs
+
+5. /jobs/[id] (Job Details Page)
+Purpose:
+
+Show job info + candidates belonging to this job.
+
+UI Sections:
+
+A. Job Info Card
+
+Title
+
+Department
+
+Requirements list
+
+Created by
+
+Created date
+
+Status
+
+B. Candidate List Table
+Columns:
+
+Name
+
+Email
+
+Fit Score
+
+Status
+
+Actions (View)
+
+C. Buttons
+
+Upload CV (connects to candidate creation modal)
+
+Run Workflow on this job
+
+Connects To:
+
+GET /jobs/:id
+
+GET /jobs/:id/candidates
+
+6. /candidates
+Purpose:
+
+List all candidates across all jobs.
+
+UI Elements:
+
+Search bar (name, email, skill)
+
+Filter (Job, Score Range, Status)
+
+Table columns:
+
+Name
+
+Email
+
+Job Applied
+
+Extracted Skills
+
+Fit Score
+
+Status
+
+Actions
+
+Connects To:
+
+GET /candidates
+
+7. /candidates/[id]
+Purpose:
+
+View a single candidate profile (internal use only).
+
+UI Sections:
+
+A. Candidate Info Card
+
+Name
+
+Email
+
+Phone
+
+Uploaded CV URL
+
+Linked Job
+
+B. AI Extracted Data
+
+Skills
+
+Education
+
+Experience Summary
+
+AI Notes
+
+Fit Score breakdown
+
+C. Status
+Dropdown:
+
+Shortlisted
+
+Rejected
+
+Pending Review
+
+D. Buttons
+
+Re-run Agents
+
+Re-run Workflow
+
+Connects To:
+
+GET /candidates/:id
+
+PATCH /candidates/:id
+
+8. /agents
+Purpose:
+
+View all AI agents.
+
+UI Elements:
+
+Button: Create Agent
+
+Table:
+
+Agent Name
+
+Type (Screening, Scoring, Matching)
+
+Status (Active/Inactive)
+
+Last Run
+
+Created By
+
+Actions (Edit/Toggle)
+
+Connects To:
+
+GET /agents
+
+9. /agents/create
+Purpose:
+
+Create an AI agent.
+
+Form Fields:
+
+Agent Name
+
+Type (Screening, Evaluation, Matching, Scoring)
+
+Prompt Template (textarea)
+
+Input Schema (textarea)
+
+Output Schema (textarea)
+
+Status: Active/Inactive
+
+Connects To:
+
+POST /agents
+
+10. /agents/[id]/edit
+Purpose:
+
+Edit an AI agent.
+
+UI:
+
+Same as create page but pre-filled.
+
+Connects To:
+
+GET /agents/:id
+
+PATCH /agents/:id
+
+11. /workflows
+Purpose:
+
+View all defined workflows and run them.
+
+UI Elements:
+
+Button: Create Workflow
+
+Table columns:
+
+Workflow Name
+
+Agents Included
+
+Target Job (or “Global”)
+
+Last Run
+
+Actions (View, Run, Delete)
+
+Connects To:
+
+GET /workflows
+
+POST /workflows/:id/run
+
+12. /workflows/create
+Purpose:
+
+Define a workflow by selecting agents in sequence.
+
+Form Fields:
+
+Workflow Name
+
+Optional Job Assignment
+
+Ordered List of Selected Agents
+
+Description
+
+Connects To:
+
+POST /workflows
+
+13. /workflows/[id]
+Purpose:
+
+Visualize workflow steps and execution history.
+
+UI Sections:
+
+A. Workflow Diagram
+Node-by-node flow showing:
+
+Input
+
+Agent 1
+
+Output
+
+Agent 2
+
+Output
+
+…
+
+B. Workflow Metadata
+
+Name
+
+Description
+
+Assigned Job
+
+C. Run History Table
+
+Run ID
+
+Date
+
+Status
+
+Logs
+
+Buttons: View Run Output
+
+Connects To:
+
+GET /workflows/:id
+
+GET /workflows/:id/runs
+
+14. /settings
+Purpose:
+
+Internal system settings.
+
+Sections:
+
+A. API Keys
+
+OpenAI
+
+Google Sheets
+
+Email Processing
+
+B. App Settings
+
+Default AI model
+
+Workflow default timeout
+
+C. Theme Settings
+
+Light / Dark / Auto
+
+Connects To:
+
+GET /settings
+
+PATCH /settings
+
+15. /users (Admin Only)
+Purpose:
+
+Manage Recruiter accounts.
+
+UI Elements:
+
+Create Recruiter
+
+Table:
+
+Name
+
+Email
+
+Role (Always Recruiter)
+
+Status
+
+Actions
+
+Connects To:
+
+GET /users
+
+POST /users
+
+PATCH /users/:id
+
+16. Global UI Requirements
+Every page must support:
+
+Light and Dark theme
+
+Fully responsive design
+
+Sidebar navigation
+
+Top-right profile dropdown
+
+Skeleton loading states
+
+Toasts for success/error
+
+17. Navigation Structure
+Sidebar Items:
+
+Dashboard
+
+Jobs
+
+Candidates
+
+Agents
+
+Workflows
+
+Settings
+
+Users (Admin only)
+
+This ensures zero confusion for Windsurf.
