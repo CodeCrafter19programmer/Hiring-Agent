@@ -6,8 +6,10 @@ Use this file to populate `.env.local` for local development or the Environment 
 
 ```env
 NEXT_PUBLIC_API_URL=https://your-backend.example.com/api
+N8N_WEBHOOK_URL=https://your-n8n.example.com/webhook/candidate-apply
 ```
 - Base URL of the Hiring Agent backend API. Update with your deployed backend address (include `/api` suffix).
+- Absolute URL to your n8n Webhook endpoint for the Candidate Apply workflow. This is used by the server-only proxy at `/api/apply` to forward multipart/form-data and avoid browser CORS.
 
 ## Optional Variables
 

@@ -1,0 +1,255 @@
+✅ FULL SYSTEM SPECIFICATION FOR AI WORKFLOW GENERATION
+
+This describes the entire recruitment automation system:
+Front-end → Backend → Integrations → n8n workflow.
+
+Use this document to guide another AI to build valid workflow JSON and node wiring.
+
+⸻
+
+1. SYSTEM PURPOSE
+
+Automate job applications:
+	•	Candidates submit a form (plus upload CV).
+	•	CV gets uploaded to Google Drive.
+	•	n8n extracts text from the file.
+	•	n8n fetches job requirements from a Google Sheet.
+	•	AI summarizes the CV and evaluates the applicant.
+	•	n8n appends structured results to a Google Sheet.
+
+
+
+2. FRONT-END REQUIREMENTS
+
+The front end is simple — candidates do NOT create accounts.
+
+2.1 Candidate Application Page Fields
+
+The form must send this JSON to the webhook:
+
+{
+  "full_name": "",
+  "email": "",
+  "phone": "",
+  "jobId": "",
+  "cv_file": (binary file upload)
+}
+
+
+Field rules
+	•	jobId = the ID of the job selected by the applicant
+	•	File upload sends multipart/form-data.
+
+2.2 Job Listing Page
+
+Each job has:
+
+{
+  "jobId": "",
+  "title": "",
+  "short_description": "",
+  "requirements": "",
+}
+
+Clicking Apply → redirects to the form with jobId prefilled.
+
+⸻
+
+3. BACKEND REQUIREMENTS
+
+Backend is minimal since n8n handles the automation.
+
+Backend must provide:
+	•	The front-end form submits directly to your n8n Webhook URL (candidate-apply).
+	•	Optional proxy server can forward requests, but not required.
+	•	No login for applicants.
+	•	Only recruiters/admins need access (through a separate admin dashboard, not handled by this workflow).
+
+
+4. DATA SOURCES
+
+4.1 Google Sheets (Job Requirements Sheet)
+
+This sheet holds all job definitions.
+| Column | Description |
+|---|---|
+| job_id | Unique ID (matches jobId from front-end) |
+| title | Job Title |
+| required_skills | Comma-separated skill list |
+| required_experience | Number or text |
+| optional_fields | salary, location, role_type |
+
+
+Get Rows will fetch all of them.
+
+
+4.2 Google Sheets (Applicants Sheet)
+
+This receives all processed results.
+
+Columns must include:
+	•	full_name
+	•	email
+	•	phone
+	•	job_title
+	•	job_id
+	•	summary
+	•	skills
+	•	education
+	•	experience
+	•	fit_score
+	•	missing_skills
+	•	recommendation
+	•	cv_url
+	•	timestamp
+
+
+5. n8n WORKFLOW SPECIFICATION
+
+This is the exact required flow.
+Use this to create the JSON or wiring.
+
+⸻
+
+5.1 NODE ORDER — MUST BE EXACT
+	1.	Webhook (trigger)
+	•	Path: candidate-apply
+	•	Method: POST
+	•	Receives form + file.
+	2.	Google Drive → Upload File
+	•	Upload the received CV.
+	3.	Extract from File
+	•	Extract text from the uploaded PDF/DOCX.
+	4.	Google Sheets → Get Rows (Job Requirements Sheet)
+	•	Fetch all job roles.
+	5.	Function → Find Job
+	•	Input: all rows
+	•	Output: only the row matching jobId from the webhook.
+	6.	Set → Set Payload
+	•	Create final unified JSON object containing:
+full_name, email, phone, job title, required skills, extracted cv text, etc.
+	7.	LLM → Summary Extraction
+	•	Produces structured summary fields:
+summary, extracted_skills, education, experience_years
+	8.	LLM → Fit Score Generator
+	•	Produces:
+fit_score, missing_skills, recommendation
+	9.	Google Sheets → Append Row
+	•	Append final structured result to the Applicants sheet.
+
+
+
+
+5.3 REQUIRED INPUTS AND OUTPUTS FOR EACH NODE
+
+1. Webhook (trigger)
+
+Output JSON:
+	•	full_name
+	•	email
+	•	phone
+	•	jobId
+	•	binary CV
+
+
+
+2. Google Drive → Upload File2. Upload File
+
+Input:
+	•	binary file from Webhook
+
+Output:
+	•	fileId
+	•	webViewLink
+	•	webContentLink
+
+⸻
+
+3. Extract from File
+
+Input:
+	•	fileId from Drive node
+
+Output:
+	•	text
+	•	mimeType
+
+⸻
+
+4. Get Rows (Job Requirements Sheet)
+
+Output:
+	•	array of rows: each with job_id, title, required_skills, required_experience
+
+5. Find Job (Function)
+
+
+{
+  "job_id": "...",
+  "title": "...",
+  "required_skills": "...",
+  "required_experience": "...",
+}
+
+6. Set Payload
+
+Output unified JSON:
+
+{
+  "full_name": "",
+  "email": "",
+  "phone": "",
+  "cv_url": "",
+  "cv_text": "",
+  "job_id": "",
+  "job_title": "",
+  "job_requirements": "",
+  "job_experience": ""
+}
+
+7. LLM Summary Extraction
+
+Input:
+	•	cv_text
+	•	job_requirements
+	•	job_title
+
+Output:
+
+{
+  summary: "",
+  extracted_skills: [],
+  education: [],
+  experience_years: ""
+}
+
+8. LLM Fit Score Generator
+
+Input:
+	•	All above fields
+
+Output:
+
+{
+  fit_score: "",
+  missing_skills: [],
+  recommendation: ""
+}
+
+9. Append Row
+
+Maps all final fields into the Applicants Google Sheet.
+
+⸻
+
+6. FINAL EXPECTED BEHAVIOR
+	1.	Candidate submits form
+	2.	CV uploaded to Drive
+	3.	Text extracted
+	4.	Job requirements fetched
+	5.	Job filtered
+	6.	Payload merged
+	7.	LLM summarizes CV
+	8.	LLM scores applicant
+	9.	Sheet updated with full structured row
+

@@ -1,0 +1,294 @@
+{
+  "name": "Candidate Apply (Hiring Agent)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "candidate-apply",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {
+          "binaryData": true
+        }
+      },
+      "id": "Webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "binaryData": true,
+        "binaryPropertyName": "cv_file",
+        "fileName": "={{$json[\"full_name\"]}}-{{$json[\"jobId\"]}}-={{Date.now()}}",
+        "parents": [
+          "<<GOOGLE_DRIVE_FOLDER_ID>>"
+        ],
+        "options": {
+          "fields": "id, webViewLink, webContentLink, mimeType, name"
+        }
+      },
+      "id": "DriveUpload",
+      "name": "Drive - Upload",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 2,
+      "position": [520, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "name": "<<GOOGLE_DRIVE_CREDENTIAL_NAME>>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{$json.id}}",
+        "binaryPropertyName": "cv_file_downloaded"
+      },
+      "id": "DriveDownload",
+      "name": "Drive - Download",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 2,
+      "position": [760, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "name": "<<GOOGLE_DRIVE_CREDENTIAL_NAME>>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "extractText",
+        "binaryPropertyName": "cv_file_downloaded"
+      },
+      "id": "PdfExtract",
+      "name": "PDF - Extract Text",
+      "type": "n8n-nodes-base.pdf",
+      "typeVersion": 1,
+      "position": [980, 300]
+    },
+    {
+      "parameters": {
+        "operation": "lookup",
+        "documentId": "<<JOBS_SHEET_ID>>",
+        "sheetName": "<<JOBS_SHEET_NAME>>",
+        "lookupColumn": "job_id",
+        "lookupValue": "={{$node[\"Webhook\"].json[\"jobId\"]}}",
+        "returnAllMatches": false
+      },
+      "id": "SheetsGetJobs",
+      "name": "Sheets - Get Job Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [1200, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "<<GOOGLE_SHEETS_CREDENTIAL_NAME>>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {"name": "full_name", "value": "={{$node[\\\"Webhook\\\"].json.full_name}}"},
+            {"name": "email", "value": "={{$node[\\\"Webhook\\\"].json.email}}"},
+            {"name": "phone", "value": "={{$node[\\\"Webhook\\\"].json.phone}}"},
+            {"name": "cv_url", "value": "={{$node[\\\"Drive - Upload\\\"].json.webViewLink}}"},
+            {"name": "cv_text", "value": "={{$node[\\\"PDF - Extract Text\\\"].json.text}}"},
+            {"name": "job_id", "value": "={{$json.job_id}}"},
+            {"name": "job_title", "value": "={{$json.title}}"},
+            {"name": "job_requirements", "value": "={{$json.required_skills}}"},
+            {"name": "job_experience", "value": "={{$json.required_experience}}"}
+          ]
+        }
+      },
+      "id": "SetPayload",
+      "name": "Set Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [1440, 300]
+    },
+    {
+      "parameters": {
+        "operation": "chat",
+        "model": "gpt-3.5-turbo",
+        "messages": [
+          {"text": "You are an assistant that summarizes CVs. Output ONLY valid JSON with keys: summary (string), extracted_skills (array of strings), education (array of strings), experience_years (string).", "type": "system"},
+          {"text": "Job Title: {{$json.job_title}}\nJob Requirements: {{$json.job_requirements}}\nCV Text: {{$json.cv_text}}\n\nRespond in JSON only.", "type": "user"}
+        ],
+        "temperature": 0
+      },
+      "id": "OpenAISummary",
+      "name": "OpenAI - Summary",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 4,
+      "position": [1680, 300],
+      "credentials": {
+        "openAiApi": {
+          "name": "<<OPENAI_CREDENTIAL_NAME>>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const raw = $json.text || $json.response || $json.data || '';\nlet out;\ntry { out = JSON.parse(raw); } catch (e) { out = { summary: raw, extracted_skills: [], education: [], experience_years: '' }; }\nreturn [{ json: { ...$json, ...out } }];"
+      },
+      "id": "ParseSummary",
+      "name": "Parse Summary JSON",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [1920, 300]
+    },
+    {
+      "parameters": {
+        "operation": "chat",
+        "model": "gpt-3.5-turbo",
+        "messages": [
+          {"text": "You are an assistant that evaluates candidates against job requirements. Output ONLY valid JSON with keys: fit_score (0-100 number or string), missing_skills (array of strings), recommendation (string).", "type": "system"},
+          {"text": "Job Title: {{$json.job_title}}\nJob Requirements: {{$json.job_requirements}}\nExtracted Skills: {{$json.extracted_skills}}\nSummary: {{$json.summary}}\n\nRespond in JSON only.", "type": "user"}
+        ],
+        "temperature": 0
+      },
+      "id": "OpenAIScore",
+      "name": "OpenAI - Fit Score",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 4,
+      "position": [2160, 300],
+      "credentials": {
+        "openAiApi": {
+          "name": "<<OPENAI_CREDENTIAL_NAME>>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const raw = $json.text || $json.response || $json.data || '';\nlet out;\ntry { out = JSON.parse(raw); } catch (e) { out = { fit_score: '', missing_skills: [], recommendation: '' }; }\nreturn [{ json: { ...$json, ...out } }];"
+      },
+      "id": "ParseScore",
+      "name": "Parse Score JSON",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [2400, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "<<APPLICANTS_SHEET_ID>>",
+        "sheetName": "<<APPLICANTS_SHEET_NAME>>",
+        "keyRow": 1,
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        },
+        "columns": [
+          "full_name",
+          "email",
+          "phone",
+          "job_title",
+          "job_id",
+          "summary",
+          "skills",
+          "education",
+          "experience",
+          "fit_score",
+          "missing_skills",
+          "recommendation",
+          "cv_url",
+          "timestamp"
+        ],
+        "data": [
+          [
+            "={{$json.full_name}}",
+            "={{$json.email}}",
+            "={{$json.phone}}",
+            "={{$json.job_title}}",
+            "={{$json.job_id}}",
+            "={{$json.summary}}",
+            "={{Array.isArray($json.extracted_skills) ? $json.extracted_skills.join(', ') : $json.extracted_skills}}",
+            "={{Array.isArray($json.education) ? $json.education.join('; ') : $json.education}}",
+            "={{$json.experience_years || $json.experience}}",
+            "={{$json.fit_score}}",
+            "={{Array.isArray($json.missing_skills) ? $json.missing_skills.join(', ') : $json.missing_skills}}",
+            "={{$json.recommendation}}",
+            "={{$json.cv_url}}",
+            "={{new Date().toISOString()}}"
+          ]
+        ]
+      },
+      "id": "SheetsAppend",
+      "name": "Sheets - Append Applicant",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [2640, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "<<GOOGLE_SHEETS_CREDENTIAL_NAME>>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "responseBody": "={\"ok\":true,\"message\":\"Application received\",\"job_id\":$json.job_id,\"file\":$node[\"Drive - Upload\"].json.name}",
+        "options": {
+          "responseCode": 200,
+          "headers": {
+            "entries": [
+              { "name": "content-type", "value": "application/json" }
+            ]
+          }
+        }
+      },
+      "id": "Respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2880, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [ [ { "node": "Drive - Upload", "type": "main", "index": 0 } ] ]
+    },
+    "Drive - Upload": {
+      "main": [ [ { "node": "Drive - Download", "type": "main", "index": 0 } ] ]
+    },
+    "Drive - Download": {
+      "main": [ [ { "node": "PDF - Extract Text", "type": "main", "index": 0 } ] ]
+    },
+    "PDF - Extract Text": {
+      "main": [ [ { "node": "Sheets - Get Job Row", "type": "main", "index": 0 } ] ]
+    },
+    "Sheets - Get Job Row": {
+      "main": [ [ { "node": "Set Payload", "type": "main", "index": 0 } ] ]
+    },
+    "Set Payload": {
+      "main": [ [ { "node": "OpenAI - Summary", "type": "main", "index": 0 } ] ]
+    },
+    "OpenAI - Summary": {
+      "main": [ [ { "node": "Parse Summary JSON", "type": "main", "index": 0 } ] ]
+    },
+    "Parse Summary JSON": {
+      "main": [ [ { "node": "OpenAI - Fit Score", "type": "main", "index": 0 } ] ]
+    },
+    "OpenAI - Fit Score": {
+      "main": [ [ { "node": "Parse Score JSON", "type": "main", "index": 0 } ] ]
+    },
+    "Parse Score JSON": {
+      "main": [ [ { "node": "Sheets - Append Applicant", "type": "main", "index": 0 } ] ]
+    },
+    "Sheets - Append Applicant": {
+      "main": [ [ { "node": "Respond to Webhook", "type": "main", "index": 0 } ] ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCreds": {
+      "googleDriveOAuth2Api": "<<GOOGLE_DRIVE_CREDENTIAL_NAME>>",
+      "googleSheetsOAuth2Api": "<<GOOGLE_SHEETS_CREDENTIAL_NAME>>",
+      "openAiApi": "<<OPENAI_CREDENTIAL_NAME>>"
+    }
+  }
+}
