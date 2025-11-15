@@ -9,22 +9,34 @@ import { CORS_ALLOWED_ORIGINS } from './config/env.js';
 
 const app = express();
 app.use(helmet());
+
+// CORS Configuration
 const whitelist = (CORS_ALLOWED_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean);
-if (whitelist.length > 0) {
-  app.use(
-    cors({
-      origin(origin, callback) {
-        if (!origin || whitelist.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-    }),
-  );
-} else {
-  app.use(cors());
-}
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (whitelist.length === 0) {
+      // If no whitelist, allow all origins in development
+      return callback(null, true);
+    }
+    
+    if (whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 600, // 10 minutes
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
