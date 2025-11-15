@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -23,11 +22,7 @@ export default function NewJobPage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <div className="ml-64 flex-1">
-          <Topbar />
-          <main className="mt-16 p-8">
+      <AppLayout>
             <h1 className="mb-6 text-2xl font-bold">Create Job</h1>
             <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
               <Input label="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
@@ -41,9 +36,7 @@ export default function NewJobPage() {
               </div>
               <Button type="submit" isLoading={createJob.isPending}>Create</Button>
             </form>
-          </main>
-        </div>
-      </div>
+      </AppLayout>
     </ProtectedRoute>
   );
 }

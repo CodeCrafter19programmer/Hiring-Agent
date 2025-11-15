@@ -1,8 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -43,11 +42,7 @@ export default function AgentDetailPage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <div className="ml-64 flex-1">
-          <Topbar />
-          <main className="mt-16 p-8">
+      <AppLayout>
             {isLoading ? (
               <p>Loading...</p>
             ) : (
@@ -82,9 +77,7 @@ export default function AgentDetailPage() {
                 </form>
               </div>
             )}
-          </main>
-        </div>
-      </div>
+      </AppLayout>
     </ProtectedRoute>
   );
 }
