@@ -7,7 +7,7 @@ import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Mail, Users, Briefcase, FileText, TrendingUp, Play } from "lucide-react";
-import { candidatesService } from "@/lib/services/candidates";
+import { candidatesService, type Candidate } from "@/lib/services/candidates";
 import { screeningService } from "@/lib/services/screening";
 
 export default function AdminDashboard() {
@@ -18,7 +18,7 @@ export default function AdminDashboard() {
     recruitersActive: 3
   });
   
-  const [recentCandidates, setRecentCandidates] = useState([]);
+  const [recentCandidates, setRecentCandidates] = useState<Candidate[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingResult, setProcessingResult] = useState("");
 
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const getFitScoreColor = (score) => {
+  const getFitScoreColor = (score: number) => {
     if (score >= 80) return "text-green-600";
     if (score >= 60) return "text-yellow-600";
     return "text-red-600";
