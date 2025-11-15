@@ -1,42 +1,41 @@
-16:13:55.312 Running build in Washington, D.C., USA (East) – iad1
-16:13:55.316 Build machine configuration: 2 cores, 8 GB
-16:13:55.660 Cloning github.com/CodeCrafter19programmer/Hiring-Agent (Branch: main, Commit: 0cb20f8)
-16:13:56.560 Cloning completed: 900.000ms
-16:13:57.032 Restored build cache from previous deployment (HonwfZwRujYmycrGstFfGwmkKhKR)
-16:13:57.717 Running "vercel build"
-16:13:58.110 Vercel CLI 48.10.2
-16:13:58.436 Installing dependencies...
-16:14:00.037 
-16:14:00.038 up to date in 1s
-16:14:00.038 
-16:14:00.038 182 packages are looking for funding
-16:14:00.039   run `npm fund` for details
-16:14:00.067 Detected Next.js version: 14.2.33
-16:14:00.074 Running "npm run build"
-16:14:00.182 
-16:14:00.184 > hiring-agent-frontend@1.0.0 build
-16:14:00.184 > next build
-16:14:00.185 
-16:14:00.894   ▲ Next.js 14.2.33
-16:14:00.894 
-16:14:00.949    Creating an optimized production build ...
-16:14:01.553  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
-16:14:04.911  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
-16:14:05.830  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
-16:14:08.888  ✓ Compiled successfully
-16:14:08.889    Linting and checking validity of types ...
-16:14:14.291 Failed to compile.
-16:14:14.291 
-16:14:14.292 ./app/candidates/page.tsx:122:39
-16:14:14.292 Type error: Type '{ children: Element; open: boolean; onOpenChange: Dispatch<SetStateAction<boolean>>; title: string; }' is not assignable to type 'IntrinsicAttributes & ModalProps'.
-16:14:14.292   Property 'onOpenChange' does not exist on type 'IntrinsicAttributes & ModalProps'.
-16:14:14.292 
-16:14:14.293 [0m [90m 120 |[39m         [33m<[39m[33m/[39m[33mCard[39m[33m>[39m[0m
-16:14:14.293 [0m [90m 121 |[39m[0m
-16:14:14.293 [0m[31m[1m>[22m[39m[90m 122 |[39m         [33m<[39m[33mModal[39m open[33m=[39m{showUploadModal} onOpenChange[33m=[39m{setShowUploadModal} title[33m=[39m[32m"Upload Candidate CV"[39m[33m>[39m[0m
-16:14:14.293 [0m [90m     |[39m                                       [31m[1m^[22m[39m[0m
-16:14:14.293 [0m [90m 123 |[39m           [33m<[39m[33mform[39m onSubmit[33m=[39m{handleUpload} className[33m=[39m[32m"space-y-4"[39m[33m>[39m[0m
-16:14:14.294 [0m [90m 124 |[39m             [33m<[39m[33mdiv[39m[33m>[39m[0m
-16:14:14.294 [0m [90m 125 |[39m               [33m<[39m[33mlabel[39m className[33m=[39m[32m"mb-1.5 block text-sm font-medium"[39m[33m>[39m[33mCV[39m [33mFile[39m ([33mPDF[39m or [33mWord[39m)[33m<[39m[33m/[39m[33mlabel[39m[33m>[39m[0m
-16:14:14.312 Next.js build worker exited with code: 1 and signal: null
-16:14:14.367 Error: Command "npm run build" exited with 1
+16:35:44.401 Running build in Washington, D.C., USA (East) – iad1
+16:35:44.402 Build machine configuration: 2 cores, 8 GB
+16:35:44.538 Cloning github.com/CodeCrafter19programmer/Hiring-Agent (Branch: main, Commit: fb0694f)
+16:35:44.782 Cloning completed: 243.000ms
+16:35:45.379 Restored build cache from previous deployment (HBW6C6PPd7TWR3z8A8YrHNr8ah8U)
+16:35:46.121 Running "vercel build"
+16:35:46.556 Vercel CLI 48.10.2
+16:35:46.911 Installing dependencies...
+16:35:49.431 
+16:35:49.432 up to date in 2s
+16:35:49.435 
+16:35:49.435 182 packages are looking for funding
+16:35:49.435   run `npm fund` for details
+16:35:49.471 Detected Next.js version: 14.2.33
+16:35:49.478 Running "npm run build"
+16:35:49.621 
+16:35:49.621 > hiring-agent-frontend@1.0.0 build
+16:35:49.622 > next build
+16:35:49.622 
+16:35:50.431   ▲ Next.js 14.2.33
+16:35:50.432 
+16:35:50.505    Creating an optimized production build ...
+16:35:51.154  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
+16:35:54.549  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
+16:35:55.583  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
+16:35:58.517  ✓ Compiled successfully
+16:35:58.518    Linting and checking validity of types ...
+16:36:04.392 Failed to compile.
+16:36:04.393 
+16:36:04.393 ./app/jobs/page.tsx:42:76
+16:36:04.393 Type error: Property 'department' does not exist on type 'Job'.
+16:36:04.393 
+16:36:04.394 [0m [90m 40 |[39m                     [33m<[39m[33mtr[39m key[33m=[39m{job[33m.[39mid} className[33m=[39m[32m"hover:bg-muted/50"[39m[33m>[39m[0m
+16:36:04.394 [0m [90m 41 |[39m                       [33m<[39m[33mtd[39m className[33m=[39m[32m"px-4 py-3 font-medium"[39m[33m>[39m{job[33m.[39mtitle}[33m<[39m[33m/[39m[33mtd[39m[33m>[39m[0m
+16:36:04.394 [0m[31m[1m>[22m[39m[90m 42 |[39m                       [33m<[39m[33mtd[39m className[33m=[39m[32m"px-4 py-3 text-muted-foreground"[39m[33m>[39m{job[33m.[39mdepartment [33m||[39m [32m"N/A"[39m}[33m<[39m[33m/[39m[33mtd[39m[33m>[39m[0m
+16:36:04.394 [0m [90m    |[39m                                                                            [31m[1m^[22m[39m[0m
+16:36:04.395 [0m [90m 43 |[39m                       [33m<[39m[33mtd[39m className[33m=[39m[32m"px-4 py-3"[39m[33m>[39m[0m
+16:36:04.395 [0m [90m 44 |[39m                         [33m<[39m[33mspan[39m className[33m=[39m[32m"inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"[39m[33m>[39m[0m
+16:36:04.395 [0m [90m 45 |[39m                           {job[33m.[39mcandidates_count [33m||[39m [35m0[39m}[0m
+16:36:04.414 Next.js build worker exited with code: 1 and signal: null
+16:36:04.434 Error: Command "npm run build" exited with 1

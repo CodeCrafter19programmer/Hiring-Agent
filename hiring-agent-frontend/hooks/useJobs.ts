@@ -7,11 +7,13 @@ export interface Job {
   id: string;
   title: string;
   description?: string;
-  status: 'open' | 'closed' | 'draft';
+  department?: string;
+  status: 'open' | 'closed' | 'draft' | 'active';
   created_by?: string;
   created_at: string;
   updated_at?: string;
   assigned_agents?: any[];
+  candidates_count?: number;
 }
 
 export function useJobs(params?: Record<string, any>) {
