@@ -1,0 +1,245 @@
+HIRING AGENT MANAGER — REVISED SYSTEM ARCHITECTURE (FINAL)
+Purpose:
+
+Build an internal AI-powered hiring management system for companies.
+NOT a public job board.
+NOT an applicant portal.
+There are no candidate accounts in the system.
+
+1. User Roles
+
+The system supports ONLY TWO ROLES:
+
+1. Admin
+
+Full system control
+
+Create/manage recruiters
+
+Create jobs
+
+Manage agents, workflows, automation
+
+View complete analytics dashboard
+
+2. Recruiter
+
+Create jobs
+
+Upload candidate CVs
+
+Trigger agents and workflows
+
+View candidate results
+
+View dashboard data
+
+REMOVE THIS ROLE COMPLETELY:
+
+Applicant / Candidate
+
+No signup
+
+No login
+
+No portal
+
+No dashboard
+
+No profile pages
+
+2. High-Level Modules (KEEP THESE)
+A. Dashboard
+
+A combined internal overview:
+
+Total Jobs
+
+Active Agents
+
+Running Workflows
+
+Candidates Today
+
+Admin + Recruiter both see this (with Admin having more metrics).
+
+B. Jobs Module
+
+Keep these features:
+
+Create Job
+
+Job title, description, recruiter owner
+
+Job list table
+
+Selecting job to see associated candidates
+
+Do NOT add:
+
+Job applications from candidates
+
+Public job posting pages
+
+C. Candidates Module
+
+This is an internal candidate list only.
+
+Candidate data source:
+
+Recruiters upload CVs manually
+
+Or data is fetched from Google Sheets connected via API
+
+Candidates section includes:
+
+Name
+
+Email
+
+Phone
+
+CV/Text content
+
+Skills extracted by AI
+
+Fit score based on job requirements
+
+Status (Shortlisted / Rejected / Pending Review)
+
+Do NOT include:
+
+Candidate accounts
+
+Candidate login
+
+Candidate profile editing
+
+Public application forms
+
+D. Agents Module
+
+Agents are AI automations used for:
+
+Screening
+
+Scoring
+
+Ranking
+
+Extracting CV text
+
+Matching candidate to job requirements
+
+Keep these pages:
+
+Create Agent
+
+Agent list
+
+Agent config JSON
+
+Agent type selection (Screening, Evaluation, Scoring)
+
+E. Workflows Module
+
+Workflows define automated sequences like:
+
+Run screening agent → run scoring agent → push results to table
+
+Keep:
+
+Trigger workflow button
+
+Job ID selector
+
+Agent IDs selector
+
+Workflow history table
+
+Do NOT include:
+
+Applicant-triggered workflows
+
+F. Settings Module
+
+Internal configuration only.
+
+Keep:
+
+API keys (OpenAI etc.)
+
+Google Sheets integration
+
+Default AI model
+
+Logging settings
+
+Do NOT include:
+
+Applicant settings
+
+Notification settings for public users
+
+3. Frontend Pages — What Windsurf Must Build
+KEEP & BUILD THESE PAGES
+Page	Purpose
+/dashboard	Internal analytics for Admin & Recruiter
+/jobs	Job list
+/jobs/create	Create job
+/jobs/[id]	Job detail + associated candidates
+/candidates	All candidates list
+/candidates/[id]	Candidate detail + extracted data
+/agents	List of AI agents
+/agents/create	Create agent
+/workflows	Workflow dashboard
+/settings	API keys, integrations
+/login	Login with role selector (Admin/Recruiter only)
+/users (Admins only)	Manage recruiters
+REMOVE COMPLETELY — DO NOT BUILD
+Feature	Reason
+Applicant signup	Not needed
+Applicant login	Removed
+Applicant dashboard	Removed
+Candidate profile pages	Admin-only data instead
+Public job board	Jobs are internal
+Apply now forms	CVs come via email or Sheets
+Messaging/chat between applicant and recruiter	Not part of workflow
+Job application tracking for applicants	Internal system only
+4. System Data Flow (Clear and Simple)
+
+1. CVs arrive externally
+
+Gmail
+
+Google Sheets
+
+Recruiters upload manually
+
+API integration imports them
+
+2. Admin/Recruiter triggers AI workflow
+
+Extract CV text
+
+Evaluate candidate
+
+Match with job requirements
+
+Generate score
+
+3. Candidate table updates
+
+Name
+
+Contact
+
+Skills
+
+Score
+
+Status
+
+4. Admin views dashboard stats
+
+Everything stays internal.

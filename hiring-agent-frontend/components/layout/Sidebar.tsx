@@ -2,18 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Grid, Briefcase, Cpu, GitPullRequest, UserCheck, Settings, User, X } from "lucide-react";
+import { Grid, Briefcase, Cpu, GitPullRequest, UserCheck, Settings, User, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
-const navigation = [
-  { name: "Dashboard", href: "/", icon: Grid },
-  { name: "Jobs", href: "/jobs", icon: Briefcase },
-  { name: "Agents", href: "/agents", icon: Cpu },
-  { name: "Workflows", href: "/workflows", icon: GitPullRequest },
-  { name: "Candidates", href: "/candidates", icon: UserCheck },
-  { name: "Settings", href: "/settings", icon: Settings },
-  { name: "Profile", href: "/profile", icon: User },
-];
 
 interface SidebarProps {
   isOpen: boolean;
@@ -22,6 +14,18 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  const navigation = [
+    { name: "Dashboard", href: "/", icon: Grid },
+    { name: "Jobs", href: "/jobs", icon: Briefcase },
+    { name: "Agents", href: "/agents", icon: Cpu },
+    { name: "Workflows", href: "/workflows", icon: GitPullRequest },
+    { name: "Candidates", href: "/candidates", icon: UserCheck },
+    ...(user?.role === "Admin" ? [{ name: "Users", href: "/users", icon: Users }] : []),
+    { name: "Settings", href: "/settings", icon: Settings },
+    { name: "Profile", href: "/profile", icon: User },
+  ];
 
   return (
     <>

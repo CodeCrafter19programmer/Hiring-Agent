@@ -52,7 +52,6 @@ export default function RegisterPage() {
               >
                 <option>Recruiter</option>
                 <option>Admin</option>
-                <option>Applicant</option>
               </select>
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}

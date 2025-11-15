@@ -1,19 +1,31 @@
 # Hiring Agent Manager - Frontend
 
-A modern Next.js TypeScript frontend for the Hiring Agent Manager platform, featuring AI-powered recruitment automation with a clean, responsive UI.
+An **internal-only** AI-powered hiring management system built with Next.js and TypeScript. This is **NOT** a public job board or applicant portal — it's designed exclusively for company HR staff (Admin and Recruiter roles).
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/CodeCrafter19programmer/Hiring-Agent&root-directory=hiring-agent-frontend&project-name=hiring-agent-frontend&repository-name=Hiring-Agent&env=NEXT_PUBLIC_API_URL,NEXT_PUBLIC_APP_NAME,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY&envDescription=Set%20your%20API%20URL%20and%20optional%20Supabase%20keys.&envLink=https://github.com/CodeCrafter19programmer/Hiring-Agent/tree/main/hiring-agent-frontend#-environment-variables)
 
+## ⚠️ Important: Internal Staff-Only System
+
+**This system is for INTERNAL USE by company HR staff only:**
+- ✅ Admin and Recruiter roles can log in
+- ❌ Candidates/applicants do NOT have accounts
+- ❌ No public job board or application forms
+- ❌ CVs are uploaded by recruiters or fetched via integrations
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for complete system design details.
+
 ## 🚀 Features
 
-- **Authentication**: Secure JWT-based login/register with role-based access
-- **Job Management**: Create, edit, and manage job postings with agent assignment
-- **Agent Configuration**: Define and configure AI agents for screening, analysis, and notifications
-- **Workflow Orchestration**: Trigger and monitor automated recruitment workflows
-- **Candidate Management**: View parsed CVs, AI evaluations, and candidate recommendations
-- **Real-time Updates**: Automatic polling for workflow status changes
-- **Dark/Light Theme**: Full theme support with system preference detection
-- **Responsive Design**: Mobile-first design that works on all devices
+- **Authentication**: Secure JWT-based login/register for Admin and Recruiter roles only
+- **Job Management**: Create and manage internal job postings with AI agent assignment
+- **AI Agent Configuration**: Define screening, scoring, and evaluation agents
+- **Workflow Orchestration**: Trigger automated CV processing workflows
+- **Candidate Database**: View AI-processed CVs, scores, and recommendations (internal data only)
+- **CV Upload**: Recruiters can manually upload candidate resumes
+- **User Management**: Admins can create and manage recruiter accounts
+- **Real-time Updates**: Automatic workflow status polling
+- **Dark/Light Theme**: Full theme support with glassmorphism UI
+- **Responsive Design**: Mobile-first with hamburger menu toggle
 - **Type-Safe**: Full TypeScript coverage with strict mode enabled
 
 ## 📋 Prerequisites
