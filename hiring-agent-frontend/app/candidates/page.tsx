@@ -134,7 +134,6 @@ export default function ScreenedCandidatesPage() {
                   placeholder="Name, email, or skill..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  icon={<Search className="h-4 w-4" />}
                 />
                 <div>
                   <label className="mb-1.5 block text-sm font-medium">Job Role</label>

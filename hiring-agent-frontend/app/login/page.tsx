@@ -58,8 +58,9 @@ export default function LoginPage() {
               required 
             />
             <div>
-              <label className="block text-sm font-medium mb-2">Role</label>
+              <label htmlFor="role" className="block text-sm font-medium mb-2">Role</label>
               <select
+                id="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as "admin" | "recruiter")}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
