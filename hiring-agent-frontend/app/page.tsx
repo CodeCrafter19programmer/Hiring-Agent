@@ -1,7 +1,6 @@
 "use client";
 
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Briefcase, Cpu, GitPullRequest, UserCheck } from "lucide-react";
@@ -16,12 +15,8 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <div className="ml-64 flex-1">
-          <Topbar />
-          <main className="mt-16 p-8">
-            <h1 className="mb-8 text-3xl font-bold">Dashboard</h1>
+      <AppLayout>
+        <h1 className="mb-8 text-3xl font-bold">Dashboard</h1>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {stats.map((stat) => (
@@ -62,9 +57,7 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </div>
-          </main>
-        </div>
-      </div>
+      </AppLayout>
     </ProtectedRoute>
   );
 }

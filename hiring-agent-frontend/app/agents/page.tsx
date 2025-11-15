@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { Button } from "@/components/ui/Button";
 import { useAgents } from "@/hooks/useAgents";
@@ -13,11 +12,7 @@ export default function AgentsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <div className="ml-64 flex-1">
-          <Topbar />
-          <main className="mt-16 p-8">
+      <AppLayout>
             <div className="mb-4 flex items-center justify-between">
               <h1 className="text-2xl font-bold">Agents</h1>
               <Link href="/agents/new">
@@ -52,9 +47,7 @@ export default function AgentsPage() {
                 </tbody>
               </table>
             </div>
-          </main>
-        </div>
-      </div>
+      </AppLayout>
     </ProtectedRoute>
   );
 }

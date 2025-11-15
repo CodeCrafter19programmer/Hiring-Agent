@@ -1,7 +1,6 @@
 "use client";
 
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { Button } from "@/components/ui/Button";
 import { useWorkflowLogs, useTriggerWorkflow } from "@/hooks/useWorkflows";
@@ -23,11 +22,7 @@ export default function WorkflowsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <div className="ml-64 flex-1">
-          <Topbar />
-          <main className="mt-16 p-8">
+      <AppLayout>
             <h1 className="mb-6 text-2xl font-bold">Workflows</h1>
 
             <form onSubmit={handleTrigger} className="mb-8 grid max-w-2xl gap-3 md:grid-cols-3">
@@ -73,9 +68,7 @@ export default function WorkflowsPage() {
                 </tbody>
               </table>
             </div>
-          </main>
-        </div>
-      </div>
+      </AppLayout>
     </ProtectedRoute>
   );
 }

@@ -1,0 +1,55 @@
+18:56:14.696 Running build in Washington, D.C., USA (East) – iad1
+18:56:14.697 Build machine configuration: 2 cores, 8 GB
+18:56:15.020 Cloning github.com/CodeCrafter19programmer/Hiring-Agent (Branch: main, Commit: f2cfccc)
+18:56:15.021 Previous build caches not available.
+18:56:15.342 Cloning completed: 322.000ms
+18:56:15.738 Running "vercel build"
+18:56:16.162 Vercel CLI 48.9.2
+18:56:16.497 Installing dependencies...
+18:56:59.980 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+18:57:01.178 npm warn deprecated abab@2.0.6: Use your platform's native atob() and btoa() methods instead
+18:57:01.207 npm warn deprecated domexception@4.0.0: Use your platform's native DOMException instead
+18:57:02.087 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+18:57:02.940 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+18:57:03.210 npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+18:57:03.640 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+18:57:03.821 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+18:57:03.864 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+18:57:03.865 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+18:57:03.906 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+18:57:06.008 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+18:57:11.518 
+18:57:11.519 added 742 packages in 55s
+18:57:11.519 
+18:57:11.519 182 packages are looking for funding
+18:57:11.520   run `npm fund` for details
+18:57:11.569 Detected Next.js version: 14.2.33
+18:57:11.577 Running "npm run build"
+18:57:11.691 
+18:57:11.691 > hiring-agent-frontend@1.0.0 build
+18:57:11.691 > next build
+18:57:11.692 
+18:57:12.266 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+18:57:12.267 This information is used to shape Next.js' roadmap and prioritize features.
+18:57:12.267 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+18:57:12.267 https://nextjs.org/telemetry
+18:57:12.267 
+18:57:12.329   ▲ Next.js 14.2.33
+18:57:12.330 
+18:57:12.386    Creating an optimized production build ...
+18:57:26.594  ✓ Compiled successfully
+18:57:26.595    Linting and checking validity of types ...
+18:57:31.312 Failed to compile.
+18:57:31.313 
+18:57:31.313 ./hooks/useWorkflows.ts:33:28
+18:57:31.313 Type error: Property 'data' does not exist on type 'Query<{ data: WorkflowLog; }, Error, { data: WorkflowLog; }, readonly unknown[]>'.
+18:57:31.314 
+18:57:31.314 [0m [90m 31 |[39m     refetchInterval[33m:[39m (data) [33m=>[39m {[0m
+18:57:31.314 [0m [90m 32 |[39m       [90m// Poll every 3 seconds if status is queued or running[39m[0m
+18:57:31.314 [0m[31m[1m>[22m[39m[90m 33 |[39m       [36mconst[39m status [33m=[39m data[33m?[39m[33m.[39mdata[33m?[39m[33m.[39mstatus[33m;[39m[0m
+18:57:31.314 [0m [90m    |[39m                            [31m[1m^[22m[39m[0m
+18:57:31.315 [0m [90m 34 |[39m       [36mreturn[39m status [33m===[39m [32m'queued'[39m [33m||[39m status [33m===[39m [32m'running'[39m [33m?[39m [35m3000[39m [33m:[39m [36mfalse[39m[33m;[39m[0m
+18:57:31.315 [0m [90m 35 |[39m     }[33m,[39m[0m
+18:57:31.315 [0m [90m 36 |[39m   })[33m;[39m[0m
+18:57:31.332 Next.js build worker exited with code: 1 and signal: null
+18:57:31.351 Error: Command "npm run build" exited with 1
