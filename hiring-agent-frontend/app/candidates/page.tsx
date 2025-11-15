@@ -1,201 +1,312 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
-import { Upload } from "lucide-react";
+import { Users, Search, Eye, Filter } from "lucide-react";
+import { candidatesService, Candidate } from "@/lib/services/candidates";
+import { jobsService, Job } from "@/lib/services/jobs";
 
-interface Candidate {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  status: "Pending Review" | "Shortlisted" | "Rejected";
-  fit_score?: number;
-  skills?: string[];
-}
-
-export default function CandidatesPage() {
+export default function ScreenedCandidatesPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [cvFile, setCvFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  
+  // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [filterJob, setFilterJob] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterMinScore, setFilterMinScore] = useState("");
+  const [filterSkills, setFilterSkills] = useState("");
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setCvFile(e.target.files[0]);
-    }
-  };
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!cvFile) return;
+  useEffect(() => {
+    applyFilters();
+  }, [candidates, searchQuery, filterJob, filterMinScore, filterSkills]);
 
-    setLoading(true);
+  const loadData = async () => {
     try {
-      // TODO: Implement CV upload API call
-      console.log("Uploading CV:", cvFile.name);
+      setLoading(true);
+      const [candidatesResponse, jobsResponse] = await Promise.all([
+        candidatesService.getCandidates(),
+        jobsService.getJobs()
+      ]);
       
-      // Reset form
-      setCvFile(null);
-      setShowUploadModal(false);
+      setCandidates(candidatesResponse.data);
+      setJobs(jobsResponse.data);
     } catch (error) {
-      console.error("Failed to upload CV:", error);
+      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Shortlisted":
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-      case "Rejected":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
+  const applyFilters = () => {
+    let filtered = candidates;
+
+    // Search query filter
+    if (searchQuery) {
+      filtered = filtered.filter(candidate =>
+        candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        candidate.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        candidate.extractedSkills.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
+
+    // Job role filter
+    if (filterJob && filterJob !== 'all') {
+      filtered = filtered.filter(candidate =>
+        candidate.jobRole.toLowerCase().includes(filterJob.toLowerCase())
+      );
+    }
+
+    // Minimum fit score filter
+    if (filterMinScore) {
+      const minScore = parseInt(filterMinScore);
+      filtered = filtered.filter(candidate => candidate.fitScore >= minScore);
+    }
+
+    // Skills filter
+    if (filterSkills) {
+      filtered = filtered.filter(candidate =>
+        candidate.extractedSkills.toLowerCase().includes(filterSkills.toLowerCase())
+      );
+    }
+
+    setFilteredCandidates(filtered);
   };
+
+  const handleViewDetails = (candidate: Candidate) => {
+    setSelectedCandidate(candidate);
+    setShowDetailsModal(true);
+  };
+
+  const getFitScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600 bg-green-50";
+    if (score >= 60) return "text-yellow-600 bg-yellow-50";
+    return "text-red-600 bg-red-50";
+  };
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <AppLayout>
+          <div className="flex items-center justify-center min-h-64">
+            <div className="text-lg">Loading screened candidates...</div>
+          </div>
+        </AppLayout>
+      </ProtectedRoute>
+    );
+  }
 
   return (
     <ProtectedRoute>
       <AppLayout>
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Candidates</h1>
-          <Button onClick={() => setShowUploadModal(true)}>
-            <Upload className="mr-2 h-4 w-4" />
-            Upload CV
-          </Button>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Screened Candidates</h1>
+              <p className="text-muted-foreground">View all processed applicants from Gmail CV screening</p>
+            </div>
+          </div>
+
+          {/* Search and Filters */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="h-5 w-5" />
+                Search & Filters
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Input
+                  label="Search"
+                  placeholder="Name, email, or skill..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  icon={<Search className="h-4 w-4" />}
+                />
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium">Job Role</label>
+                  <select
+                    value={filterJob}
+                    onChange={(e) => setFilterJob(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value="all">All Roles</option>
+                    {jobs.map(job => (
+                      <option key={job.id} value={job.title}>
+                        {job.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <Input
+                  label="Fit Score >"
+                  placeholder="e.g., 80"
+                  type="number"
+                  value={filterMinScore}
+                  onChange={(e) => setFilterMinScore(e.target.value)}
+                />
+                <Input
+                  label="Skills"
+                  placeholder="e.g., React, Node.js"
+                  value={filterSkills}
+                  onChange={(e) => setFilterSkills(e.target.value)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Candidates Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Candidates ({filteredCandidates.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {filteredCandidates.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  {candidates.length === 0 ? (
+                    <>
+                      <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                      <p className="text-lg mb-2">No candidates screened yet</p>
+                      <p>Use the "PROCESS NEW CVs" button on the dashboard to start screening candidates from Gmail.</p>
+                    </>
+                  ) : (
+                    <>
+                      <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                      <p>No candidates match your current filters.</p>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border text-left">
+                        <th className="pb-3 font-semibold">Candidate Name</th>
+                        <th className="pb-3 font-semibold">Email</th>
+                        <th className="pb-3 font-semibold">Phone</th>
+                        <th className="pb-3 font-semibold">Job Role</th>
+                        <th className="pb-3 font-semibold">Extracted Skills</th>
+                        <th className="pb-3 font-semibold">Fit Score</th>
+                        <th className="pb-3 font-semibold">View Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredCandidates.map((candidate) => (
+                        <tr key={candidate.id} className="border-b border-border hover:bg-muted/50">
+                          <td className="py-3 font-medium">{candidate.name}</td>
+                          <td className="py-3 text-sm">{candidate.email}</td>
+                          <td className="py-3 text-sm">{candidate.phone}</td>
+                          <td className="py-3 text-sm">{candidate.jobRole}</td>
+                          <td className="py-3">
+                            <div className="max-w-xs">
+                              <div className="text-sm text-muted-foreground truncate" title={candidate.extractedSkills}>
+                                {candidate.extractedSkills.split(',').slice(0, 3).join(', ')}
+                                {candidate.extractedSkills.split(',').length > 3 && '...'}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3">
+                            <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${getFitScoreColor(candidate.fitScore)}`}>
+                              {candidate.fitScore}%
+                            </div>
+                          </td>
+                          <td className="py-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewDetails(candidate)}
+                              className="flex items-center gap-1"
+                            >
+                              <Eye className="h-4 w-4" />
+                              View
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Search and Filters */}
-        <Card className="mb-6">
-          <div className="p-4">
-            <div className="grid gap-4 md:grid-cols-3">
-              <Input
-                label="Search"
-                placeholder="Name, email, or skill..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <div>
-                <label htmlFor="filter-job" className="mb-1.5 block text-sm font-medium">
-                  Filter by Job
-                </label>
-                <select
-                  id="filter-job"
-                  title="Filter by Job"
-                  className="h-10 w-full rounded-md border px-3 text-sm text-foreground border-white/20 bg-white/60 dark:bg-white/10 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/30"
-                  value={filterJob}
-                  onChange={(e) => setFilterJob(e.target.value)}
-                >
-                  <option value="all">All Jobs</option>
-                  <option value="senior-developer">Senior Developer</option>
-                  <option value="product-manager">Product Manager</option>
-                  <option value="ux-designer">UX Designer</option>
-                </select>
+        {/* Candidate Details Modal */}
+        <Modal 
+          open={showDetailsModal} 
+          onClose={() => setShowDetailsModal(false)} 
+          title={`Candidate Details - ${selectedCandidate?.name}`}
+        >
+          {selectedCandidate && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium text-sm text-muted-foreground">Name</h4>
+                  <p>{selectedCandidate.name}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-muted-foreground">Email</h4>
+                  <p>{selectedCandidate.email}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-muted-foreground">Phone</h4>
+                  <p>{selectedCandidate.phone}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-muted-foreground">Job Role</h4>
+                  <p>{selectedCandidate.jobRole}</p>
+                </div>
               </div>
+              
               <div>
-                <label htmlFor="filter-status" className="mb-1.5 block text-sm font-medium">
-                  Filter by Status
-                </label>
-                <select
-                  id="filter-status"
-                  title="Filter by Status"
-                  className="h-10 w-full rounded-md border px-3 text-sm text-foreground border-white/20 bg-white/60 dark:bg-white/10 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/30"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                  <option value="all">All Status</option>
-                  <option value="shortlisted">Shortlisted</option>
-                  <option value="pending">Pending Review</option>
-                  <option value="rejected">Rejected</option>
-                </select>
+                <h4 className="font-medium text-sm text-muted-foreground mb-2">Fit Score</h4>
+                <div className={`inline-flex items-center px-3 py-2 rounded-lg text-lg font-bold ${getFitScoreColor(selectedCandidate.fitScore)}`}>
+                  {selectedCandidate.fitScore}%
+                </div>
               </div>
-            </div>
-          </div>
-        </Card>
 
-        <Card>
-          <div className="p-6">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border text-left">
-                    <th className="pb-3 font-semibold">Name</th>
-                    <th className="pb-3 font-semibold">Email</th>
-                    <th className="pb-3 font-semibold">Phone</th>
-                    <th className="pb-3 font-semibold">Fit Score</th>
-                    <th className="pb-3 font-semibold">Status</th>
-                    <th className="pb-3 font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {candidates.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="py-8 text-center text-muted-foreground">
-                        No candidates found. Upload a CV or integrate Google Sheets to get started.
-                      </td>
-                    </tr>
-                  ) : (
-                    candidates.map((candidate) => (
-                      <tr key={candidate.id} className="border-b border-border">
-                        <td className="py-3">{candidate.name}</td>
-                        <td className="py-3">{candidate.email}</td>
-                        <td className="py-3">{candidate.phone}</td>
-                        <td className="py-3">
-                          {candidate.fit_score ? `${candidate.fit_score}%` : "N/A"}
-                        </td>
-                        <td className="py-3">
-                          <span className={`inline-block rounded-full px-2 py-1 text-xs ${getStatusColor(candidate.status)}`}>
-                            {candidate.status}
-                          </span>
-                        </td>
-                        <td className="py-3">
-                          <Button variant="ghost" size="sm">View</Button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </Card>
+              <div>
+                <h4 className="font-medium text-sm text-muted-foreground mb-2">Extracted Skills</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedCandidate.extractedSkills.split(',').map((skill, index) => (
+                    <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-sm">
+                      {skill.trim()}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
-        <Modal open={showUploadModal} onClose={() => setShowUploadModal(false)} title="Upload Candidate CV">
-          <form onSubmit={handleUpload} className="space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">CV File (PDF or Word)</label>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileChange}
-                className="w-full rounded-md border border-white/20 bg-white/60 dark:bg-white/10 backdrop-blur-xl p-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/30"
-                required
-              />
-              {cvFile && (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Selected: {cvFile.name}
+              <div>
+                <h4 className="font-medium text-sm text-muted-foreground mb-2">Full Summary</h4>
+                <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
+                  {selectedCandidate.summary}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-sm text-muted-foreground mb-2">Processing Details</h4>
+                <p className="text-sm text-muted-foreground">
+                  Processed on: {new Date(selectedCandidate.processedAt).toLocaleString()}
                 </p>
-              )}
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button type="submit" isLoading={loading}>
-                Upload & Process
-              </Button>
-              <Button type="button" variant="ghost" onClick={() => setShowUploadModal(false)}>
-                Cancel
-              </Button>
-            </div>
-          </form>
+          )}
         </Modal>
       </AppLayout>
     </ProtectedRoute>

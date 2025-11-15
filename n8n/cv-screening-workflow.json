@@ -1,0 +1,291 @@
+{
+  "name": "CV Screening Automation Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cv-screening-trigger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "http-trigger",
+      "name": "HTTP Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "responseBody": "{ \"success\": true, \"message\": \"CV screening workflow started\", \"timestamp\": \"{{ new Date().toISOString() }}\" }",
+        "options": {}
+      },
+      "id": "respond-to-trigger",
+      "name": "Respond to Trigger",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "getAll",
+        "filters": {
+          "labelIds": [],
+          "query": "has:attachment filename:pdf OR filename:doc OR filename:docx",
+          "format": "full"
+        },
+        "limit": 50
+      },
+      "id": "gmail-search",
+      "name": "Search Gmail for CV Emails",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "getAttachments",
+        "messageId": "={{ $json.id }}",
+        "dataPropertyAttachmentsPrefixName": "attachment_"
+      },
+      "id": "gmail-attachments",
+      "name": "Download CV Attachments",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "split-attachments",
+      "name": "Split Attachments",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "operation": "extractText",
+        "binaryPropertyName": "attachment_data",
+        "options": {}
+      },
+      "id": "pdf-parse",
+      "name": "Parse PDF/Document",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccountKey",
+        "operation": "appendOrUpdate",
+        "documentId": "",
+        "sheetName": "Job Requirements",
+        "columnToMatchOn": "A",
+        "valueToMatchOn": "dummy",
+        "options": {
+          "useAppend": true
+        }
+      },
+      "id": "get-job-requirements",
+      "name": "Get Job Requirements",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": {
+          "messageValues": [
+            {
+              "role": "system",
+              "message": "You are a CV analysis expert. Extract structured information from the CV text and provide a clear summary."
+            },
+            {
+              "role": "user", 
+              "message": "Analyze this CV text and extract:\n1. Full name\n2. Email address\n3. Phone number\n4. Key skills (comma-separated)\n5. Years of experience\n6. A brief summary of their background\n\nCV Text:\n{{ $json.text }}\n\nProvide response in this JSON format:\n{\n  \"name\": \"...\",\n  \"email\": \"...\",\n  \"phone\": \"...\",\n  \"skills\": \"...\",\n  \"experience_years\": \"...\",\n  \"summary\": \"...\"\n}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 1000
+        }
+      },
+      "id": "llm-summarize",
+      "name": "LLM #1 Summarize Candidate",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": {
+          "messageValues": [
+            {
+              "role": "system",
+              "message": "You are a recruitment expert. Score how well a candidate matches job requirements on a scale of 0-100."
+            },
+            {
+              "role": "user",
+              "message": "Score this candidate's fit for the available job requirements:\n\nCandidate Profile:\n{{ $('LLM #1 Summarize Candidate').item.json.choices[0].message.content }}\n\nJob Requirements:\n{{ $('Get Job Requirements').all().map(item => `${item.json.title}: ${item.json.required_skills} (${item.json.experience_level})`).join('\\n') }}\n\nFor each job, provide:\n1. Match score (0-100)\n2. Best matching job title\n3. Explanation of fit\n\nResponse format:\n{\n  \"best_job_match\": \"...\",\n  \"fit_score\": 85,\n  \"match_explanation\": \"...\"\n}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 500
+        }
+      },
+      "id": "llm-fit-scoring",
+      "name": "LLM #2 Fit Scoring",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccountKey",
+        "operation": "append",
+        "documentId": "",
+        "sheetName": "Screened Candidates",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "values": {
+            "id": "=candidate_{{ new Date().getTime() }}",
+            "name": "={{ JSON.parse($('LLM #1 Summarize Candidate').item.json.choices[0].message.content).name }}",
+            "email": "={{ JSON.parse($('LLM #1 Summarize Candidate').item.json.choices[0].message.content).email }}",
+            "phone": "={{ JSON.parse($('LLM #1 Summarize Candidate').item.json.choices[0].message.content).phone }}",
+            "jobRole": "={{ JSON.parse($('LLM #2 Fit Scoring').item.json.choices[0].message.content).best_job_match }}",
+            "extractedSkills": "={{ JSON.parse($('LLM #1 Summarize Candidate').item.json.choices[0].message.content).skills }}",
+            "fitScore": "={{ JSON.parse($('LLM #2 Fit Scoring').item.json.choices[0].message.content).fit_score }}",
+            "summary": "={{ JSON.parse($('LLM #1 Summarize Candidate').item.json.choices[0].message.content).summary }}",
+            "processedAt": "={{ new Date().toISOString() }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "append-candidate",
+      "name": "Append Screened Candidate",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2220, 300]
+    }
+  ],
+  "connections": {
+    "HTTP Trigger": {
+      "main": [
+        [
+          {
+            "node": "Respond to Trigger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search Gmail for CV Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Gmail for CV Emails": {
+      "main": [
+        [
+          {
+            "node": "Download CV Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download CV Attachments": {
+      "main": [
+        [
+          {
+            "node": "Split Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Attachments": {
+      "main": [
+        [
+          {
+            "node": "Parse PDF/Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse PDF/Document": {
+      "main": [
+        [
+          {
+            "node": "Get Job Requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Requirements": {
+      "main": [
+        [
+          {
+            "node": "LLM #1 Summarize Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM #1 Summarize Candidate": {
+      "main": [
+        [
+          {
+            "node": "LLM #2 Fit Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM #2 Fit Scoring": {
+      "main": [
+        [
+          {
+            "node": "Append Screened Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "cv-screening-workflow",
+  "tags": []
+}

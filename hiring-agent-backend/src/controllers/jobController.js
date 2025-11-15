@@ -1,26 +1,31 @@
-import * as Jobs from '../services/jobService.js';
+import sheetsService from '../services/sheetsService.js';
 
 export const create = async (req, res) => {
-  const data = await Jobs.createJob(req.body, req.user.id);
-  res.status(201).json({ data });
+  const job = await sheetsService.createJobRequirement(req.body);
+  res.status(201).json({ data: job });
 };
 
 export const list = async (req, res) => {
-  const data = await Jobs.listJobs();
-  res.json({ data });
+  const jobs = await sheetsService.getJobRequirements();
+  res.json({ data: jobs });
 };
 
 export const get = async (req, res) => {
-  const data = await Jobs.getJob(req.params.id);
-  res.json({ data });
+  const job = await sheetsService.getJobRequirement(req.params.id);
+  
+  if (!job) {
+    return res.status(404).json({ error: 'Job not found' });
+  }
+  
+  res.json({ data: job });
 };
 
 export const update = async (req, res) => {
-  const data = await Jobs.updateJob(req.params.id, req.body);
-  res.json({ data });
+  const job = await sheetsService.updateJobRequirement(req.params.id, req.body);
+  res.json({ data: job });
 };
 
 export const remove = async (req, res) => {
-  const data = await Jobs.deleteJob(req.params.id);
-  res.json({ data });
+  const result = await sheetsService.deleteJobRequirement(req.params.id);
+  res.json({ data: result });
 };

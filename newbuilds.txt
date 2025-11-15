@@ -1,0 +1,213 @@
+HIRING AUTOMATION SYSTEM — FULL ARCHITECTURE & UI SPECIFICATION
+
+(Frontend + Backend + n8n Workflow Integration)
+
+⸻
+
+1. SYSTEM OVERVIEW
+
+This system automates CV screening using Gmail, n8n, Google Sheets, your backend APIs, and a modern admin dashboard frontend.
+Applicants do NOT create accounts.
+Applicants send CVs to a Gmail inbox → Admin uses your frontend to trigger screening → Results displayed in the frontend UI.
+
+Key Components:
+	•	Frontend (Next.js / React)
+	•	Backend API (Node.js / Express)
+	•	n8n Workflow (Automation Engine)
+	•	Gmail (Receives CVs)
+	•	Google Sheets (Stores job requirements + screening results)
+	•	Supabase (Auth for Admin & Recruiters)
+
+⸻
+
+2. HIGH-LEVEL FLOW (END-TO-END)
+
+Applicant → Sends CV to Gmail inbox
+        n8n → Fetch emails + extract PDFs
+        n8n → Parse CV + compare with job requirements
+        n8n → Write results to Google Sheets
+Frontend (Admin Dashboard) → Displays results
+Admin → Triggers workflow manually from frontend
+
+3. SYSTEM ARCHITECTURE (THE VERSION TO FOLLOW)
+
+3.1 Actors
+Actor                   Purpose
+
+Applicant               Sends CV via Gmail (no portal).
+Admin                   Triggers workflow, views results.
+Recruiter               Views candidates, adds job requirements.
+
+3.2 Data Locations
+
+Data Type               Stored In
+CV PDFs                 Gmail (attachments)
+Parsed CV data          Google Sheets (Screened Candidates)
+Job Requirements        Google Sheets (Job Requirements)
+Admin Accounts          Supabase Auth
+Logs/Activity           Supabase (optional)
+
+4. FRONTEND REQUIREMENTS (ALL PAGES)
+
+Your frontend must contain the following pages, with these exact features and UI components.
+
+⸻
+
+4.1 LOGIN PAGE
+
+Purpose: Admin/Recruiter authentication
+Auth: Supabase
+
+UI:
+	•	Email field
+	•	Password field
+	•	Role select:
+	•	Admin
+	•	Recruiter
+	•	Submit button
+	•	“Forgot Password” link
+
+Design:
+	•	Clean, centered card
+	•	Support Dark + Light theme
+	•	Accent color suggestions: Blue, Teal, Orange
+
+⸻
+
+4.2 ADMIN DASHBOARD (HOME)
+
+Purpose: High-level control & insights
+
+UI Sections:
+	1.	Stats
+	•	New CVs detected in Gmail
+	•	Total screened this week
+	•	Jobs open
+	•	Recruiters active
+	2.	Primary Action Button
+	•	PROCESS NEW CVS
+A button that triggers:
+
+POST /api/screen-candidates
+
+which hits n8n HTTP Trigger.
+
+	3.	Recent Screened Candidates
+	•	List of last 10 candidates
+	•	Summary preview
+	•	Fit Score badge
+
+
+4.3 JOB REQUIREMENTS PAGE
+
+Purpose: Manage job roles & requirements.
+
+Features:
+	•	Add new job role
+	•	Edit job requirements
+	•	Delete job role
+	•	View number of candidates evaluated per role
+
+UI:
+	•	Table:
+	•	Job ID
+	•	Job Title
+	•	Required Skills
+	•	Experience Level
+	•	Description
+	•	Actions (Edit/Delete)
+
+Data Source: Google Sheets (Job Requirements)
+
+⸻
+
+4.4 SCREENED CANDIDATES PAGE
+
+Purpose: View all processed applicants.
+
+UI:
+	•	Search bar
+	•	Filters:
+	•	Job role
+	•	Fit Score > X
+	•	Skills
+	•	Table Columns:
+	•	Candidate Name
+	•	Email
+	•	Phone
+	•	Job Role
+	•	Extracted Skills
+	•	Fit Score (0–100)
+	•	View Details
+
+Click: View Details → Modal with:
+	•	Full summary
+	•	Extracted skills
+	•	Matching score
+	•	PDF preview (if needed)
+
+Data Source: Google Sheets (Screened Candidates)
+
+⸻
+
+4.5 RECRUITER PAGE
+
+Simple list of all recruiters with roles and permissions.
+
+⸻
+
+5. BACKEND API ENDPOINT SPECIFICATION
+
+Your backend only has 6 important endpoints.
+
+5.1 Auth (connected to Supabase)
+POST /api/auth/login
+POST /api/auth/logout
+
+5.2 Job Requirements (connected to Google Sheets)
+GET /api/jobs           → list all jobs
+GET /api/jobs/:id       → get one
+POST /api/jobs          → create job
+PUT /api/jobs/:id       → update job
+DELETE /api/jobs/:id    → delete
+
+5.3 Candidate Screening
+POST /api/screen-candidates
+
+This sends a call to n8n HTTP Trigger Node
+Body:
+{
+  "run": true,
+  "initiatedBy": "admin"
+}
+
+5.4 Screened Candidates (read from Sheets)
+5.4 Screened Candidates (read from Sheets)
+
+6. n8n WORKFLOW REQUIREMENTS
+
+This is the final version to replace the old one.
+
+HTTP Trigger
+ ↓
+Gmail Node (Search for new CV emails)
+ ↓
+Gmail Node (Download attachments)
+ ↓
+Loop for each PDF
+ ↓
+PDF Parse Node
+ ↓
+Google Sheets (Get Rows - Job Requirements)
+ ↓
+LLM #1 Summarize Candidate
+ ↓
+LLM #2 Fit Scoring
+ ↓
+Google Sheets (Append Row - Screened Candidates)
+
+No webhook.
+
+No applicant UI.
+
+Admin triggers everything from your dashboard.

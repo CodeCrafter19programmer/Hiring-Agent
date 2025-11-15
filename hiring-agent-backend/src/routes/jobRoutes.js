@@ -10,8 +10,8 @@ const router = Router();
 router.get('/', asyncHandler(Jobs.list));
 router.get('/:id', validate(JobIdParam), asyncHandler(Jobs.get));
 
-router.post('/', authenticate, authorize('Admin', 'Recruiter'), validate(JobCreateSchema), asyncHandler(Jobs.create));
-router.patch('/:id', authenticate, authorize('Admin', 'Recruiter'), validate(JobUpdateSchema), asyncHandler(Jobs.update));
-router.delete('/:id', authenticate, authorize('Admin', 'Recruiter'), validate(JobIdParam), asyncHandler(Jobs.remove));
+router.post('/', authenticate, authorize('admin', 'recruiter'), validate(JobCreateSchema), asyncHandler(Jobs.create));
+router.put('/:id', authenticate, authorize('admin', 'recruiter'), validate(JobUpdateSchema), asyncHandler(Jobs.update));
+router.delete('/:id', authenticate, authorize('admin', 'recruiter'), validate(JobIdParam), asyncHandler(Jobs.remove));
 
 export default router;

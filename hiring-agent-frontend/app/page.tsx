@@ -1,158 +1,219 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Briefcase, Cpu, GitPullRequest, UserCheck, TrendingUp } from "lucide-react";
+import { Mail, Users, Briefcase, FileText, TrendingUp, Play } from "lucide-react";
+import { candidatesService } from "@/lib/services/candidates";
+import { screeningService } from "@/lib/services/screening";
 
-export default function Dashboard() {
-  const stats = [
-    { name: "Total Jobs", value: "12", icon: Briefcase, color: "text-blue-600" },
-    { name: "Total Candidates", value: "156", icon: UserCheck, color: "text-purple-600" },
-    { name: "Active Agents", value: "8", icon: Cpu, color: "text-green-600" },
-    { name: "Active Workflows", value: "3", icon: GitPullRequest, color: "text-yellow-600" },
-  ];
+export default function AdminDashboard() {
+  const [stats, setStats] = useState({
+    newCVsDetected: 0,
+    screenedThisWeek: 0,
+    jobsOpen: 0,
+    recruitersActive: 3
+  });
+  
+  const [recentCandidates, setRecentCandidates] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingResult, setProcessingResult] = useState("");
 
-  // Mock data for recent candidates
-  const recentCandidates = [
-    { id: 1, name: "John Doe", job: "Senior Developer", score: 92, status: "Shortlisted" },
-    { id: 2, name: "Jane Smith", job: "Product Manager", score: 88, status: "Pending Review" },
-    { id: 3, name: "Mike Johnson", job: "UX Designer", score: 75, status: "Rejected" },
-    { id: 4, name: "Sarah Williams", job: "Data Analyst", score: 95, status: "Shortlisted" },
-  ];
+  // Load dashboard data
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Shortlisted":
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-      case "Rejected":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
+  const loadDashboardData = async () => {
+    try {
+      // Get candidate stats
+      const statsResponse = await candidatesService.getCandidateStats();
+      setStats({
+        newCVsDetected: 5, // This would come from Gmail API in real implementation
+        screenedThisWeek: statsResponse.data.screenedThisWeek,
+        jobsOpen: statsResponse.data.jobsOpen,
+        recruitersActive: 3 // This would come from Supabase user count
+      });
+
+      // Get recent candidates
+      const candidatesResponse = await candidatesService.getCandidates();
+      setRecentCandidates(candidatesResponse.data.slice(0, 10)); // Last 10 candidates
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
     }
   };
+
+  const handleProcessNewCVs = async () => {
+    setIsProcessing(true);
+    setProcessingResult("");
+
+    try {
+      const result = await screeningService.triggerScreening();
+      
+      if (result.data.success) {
+        setProcessingResult("✅ CV screening workflow triggered successfully! Check the candidates page for results.");
+        // Refresh data after processing
+        setTimeout(loadDashboardData, 2000);
+      } else {
+        setProcessingResult(`❌ Failed to trigger workflow: ${result.data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      setProcessingResult(`❌ Error: ${error.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const getFitScoreColor = (score) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const statCards = [
+    { 
+      name: "New CVs Detected in Gmail", 
+      value: stats.newCVsDetected.toString(), 
+      icon: Mail, 
+      color: "text-blue-600" 
+    },
+    { 
+      name: "Total Screened This Week", 
+      value: stats.screenedThisWeek.toString(), 
+      icon: FileText, 
+      color: "text-green-600" 
+    },
+    { 
+      name: "Jobs Open", 
+      value: stats.jobsOpen.toString(), 
+      icon: Briefcase, 
+      color: "text-orange-600" 
+    },
+    { 
+      name: "Recruiters Active", 
+      value: stats.recruitersActive.toString(), 
+      icon: Users, 
+      color: "text-purple-600" 
+    },
+  ];
 
   return (
     <ProtectedRoute>
       <AppLayout>
-        <h1 className="mb-8 text-3xl font-bold">Dashboard</h1>
+        <div className="space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-muted-foreground">High-level control & insights for CV screening automation</p>
+          </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <Card key={stat.name}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {stat.name}
-                  </CardTitle>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{stat.value}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+          {/* Stats Cards */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {statCards.map((stat) => (
+              <Card key={stat.name}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {stat.name}
+                    </CardTitle>
+                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{stat.value}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-        {/* Charts Section */}
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <Card>
+          {/* Primary Action Button */}
+          <Card className="border-2 border-blue-200 dark:border-blue-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Candidates per Job
+                <Play className="h-5 w-5 text-blue-600" />
+                CV Processing Control
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {["Senior Developer", "Product Manager", "UX Designer", "Data Analyst"].map((job, idx) => (
-                  <div key={job} className="flex items-center justify-between">
-                    <span className="text-sm">{job}</span>
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-32 rounded-full bg-muted">
-                        <div
-                          className="h-2 rounded-full bg-blue-600"
-                          style={{ width: `${[80, 65, 45, 90][idx]}%` }}
-                        />
-                      </div>
-                      <span className="text-sm font-medium">{[24, 18, 12, 32][idx]}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Trigger the n8n workflow to process new CVs from Gmail and screen candidates against job requirements.
+              </p>
+              <Button 
+                onClick={handleProcessNewCVs} 
+                disabled={isProcessing}
+                size="lg"
+                className="w-full md:w-auto bg-blue-600 hover:bg-blue-700"
+              >
+                {isProcessing ? (
+                  <>
+                    <TrendingUp className="mr-2 h-4 w-4 animate-spin" />
+                    Processing CVs...
+                  </>
+                ) : (
+                  <>
+                    <Play className="mr-2 h-4 w-4" />
+                    PROCESS NEW CVs
+                  </>
+                )}
+              </Button>
+              {processingResult && (
+                <div className="p-3 rounded-md bg-gray-50 dark:bg-gray-800 text-sm">
+                  {processingResult}
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Workflow Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">CV Screening</span>
-                  <span className="font-medium">45 runs today</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Candidate Scoring</span>
-                  <span className="font-medium">32 runs today</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Job Matching</span>
-                  <span className="font-medium">28 runs today</span>
-                </div>
-                <div className="mt-4 pt-4 border-t border-border">
-                  <p className="text-xs text-muted-foreground">Last workflow run: 5 minutes ago</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Candidates Table */}
-        <div className="mt-8">
+          {/* Recent Screened Candidates */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Recent Candidates</CardTitle>
+                <CardTitle>Recent Screened Candidates</CardTitle>
                 <Link href="/candidates">
                   <Button variant="ghost" size="sm">View All</Button>
                 </Link>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border text-left">
-                      <th className="pb-3 font-semibold">Name</th>
-                      <th className="pb-3 font-semibold">Job</th>
-                      <th className="pb-3 font-semibold">Score</th>
-                      <th className="pb-3 font-semibold">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentCandidates.map((candidate) => (
-                      <tr key={candidate.id} className="border-b border-border">
-                        <td className="py-3">{candidate.name}</td>
-                        <td className="py-3 text-muted-foreground">{candidate.job}</td>
-                        <td className="py-3">
-                          <span className="font-medium">{candidate.score}%</span>
-                        </td>
-                        <td className="py-3">
-                          <span className={`inline-block rounded-full px-2 py-1 text-xs ${getStatusColor(candidate.status)}`}>
-                            {candidate.status}
-                          </span>
-                        </td>
+              {recentCandidates.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border text-left">
+                        <th className="pb-3 font-semibold">Name</th>
+                        <th className="pb-3 font-semibold">Job Role</th>
+                        <th className="pb-3 font-semibold">Fit Score</th>
+                        <th className="pb-3 font-semibold">Skills</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {recentCandidates.map((candidate) => (
+                        <tr key={candidate.id} className="border-b border-border">
+                          <td className="py-3">{candidate.name}</td>
+                          <td className="py-3 text-muted-foreground">{candidate.jobRole}</td>
+                          <td className="py-3">
+                            <span className={`font-bold ${getFitScoreColor(candidate.fitScore)}`}>
+                              {candidate.fitScore}%
+                            </span>
+                          </td>
+                          <td className="py-3">
+                            <span className="text-sm text-muted-foreground">
+                              {candidate.extractedSkills.split(',').slice(0, 3).join(', ')}
+                              {candidate.extractedSkills.split(',').length > 3 && '...'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No candidates screened yet. Click "PROCESS NEW CVs" to start screening.
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
