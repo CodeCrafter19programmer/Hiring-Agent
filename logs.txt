@@ -1,41 +1,41 @@
-16:35:44.401 Running build in Washington, D.C., USA (East) – iad1
-16:35:44.402 Build machine configuration: 2 cores, 8 GB
-16:35:44.538 Cloning github.com/CodeCrafter19programmer/Hiring-Agent (Branch: main, Commit: fb0694f)
-16:35:44.782 Cloning completed: 243.000ms
-16:35:45.379 Restored build cache from previous deployment (HBW6C6PPd7TWR3z8A8YrHNr8ah8U)
-16:35:46.121 Running "vercel build"
-16:35:46.556 Vercel CLI 48.10.2
-16:35:46.911 Installing dependencies...
-16:35:49.431 
-16:35:49.432 up to date in 2s
-16:35:49.435 
-16:35:49.435 182 packages are looking for funding
-16:35:49.435   run `npm fund` for details
-16:35:49.471 Detected Next.js version: 14.2.33
-16:35:49.478 Running "npm run build"
-16:35:49.621 
-16:35:49.621 > hiring-agent-frontend@1.0.0 build
-16:35:49.622 > next build
-16:35:49.622 
-16:35:50.431   ▲ Next.js 14.2.33
-16:35:50.432 
-16:35:50.505    Creating an optimized production build ...
-16:35:51.154  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
-16:35:54.549  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
-16:35:55.583  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
-16:35:58.517  ✓ Compiled successfully
-16:35:58.518    Linting and checking validity of types ...
-16:36:04.392 Failed to compile.
-16:36:04.393 
-16:36:04.393 ./app/jobs/page.tsx:42:76
-16:36:04.393 Type error: Property 'department' does not exist on type 'Job'.
-16:36:04.393 
-16:36:04.394 [0m [90m 40 |[39m                     [33m<[39m[33mtr[39m key[33m=[39m{job[33m.[39mid} className[33m=[39m[32m"hover:bg-muted/50"[39m[33m>[39m[0m
-16:36:04.394 [0m [90m 41 |[39m                       [33m<[39m[33mtd[39m className[33m=[39m[32m"px-4 py-3 font-medium"[39m[33m>[39m{job[33m.[39mtitle}[33m<[39m[33m/[39m[33mtd[39m[33m>[39m[0m
-16:36:04.394 [0m[31m[1m>[22m[39m[90m 42 |[39m                       [33m<[39m[33mtd[39m className[33m=[39m[32m"px-4 py-3 text-muted-foreground"[39m[33m>[39m{job[33m.[39mdepartment [33m||[39m [32m"N/A"[39m}[33m<[39m[33m/[39m[33mtd[39m[33m>[39m[0m
-16:36:04.394 [0m [90m    |[39m                                                                            [31m[1m^[22m[39m[0m
-16:36:04.395 [0m [90m 43 |[39m                       [33m<[39m[33mtd[39m className[33m=[39m[32m"px-4 py-3"[39m[33m>[39m[0m
-16:36:04.395 [0m [90m 44 |[39m                         [33m<[39m[33mspan[39m className[33m=[39m[32m"inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"[39m[33m>[39m[0m
-16:36:04.395 [0m [90m 45 |[39m                           {job[33m.[39mcandidates_count [33m||[39m [35m0[39m}[0m
-16:36:04.414 Next.js build worker exited with code: 1 and signal: null
-16:36:04.434 Error: Command "npm run build" exited with 1
+23:21:53.726 Running build in Washington, D.C., USA (East) – iad1
+23:21:53.727 Build machine configuration: 2 cores, 8 GB
+23:21:53.849 Cloning github.com/CodeCrafter19programmer/Hiring-Agent (Branch: main, Commit: 83d269c)
+23:21:54.065 Cloning completed: 216.000ms
+23:21:54.707 Restored build cache from previous deployment (Asp6jK5tDQvWtkcy8QmtL4nhoyad)
+23:21:55.383 Running "vercel build"
+23:21:55.917 Vercel CLI 48.10.2
+23:21:56.962 Installing dependencies...
+23:22:00.693 
+23:22:00.693 added 8 packages in 3s
+23:22:00.694 
+23:22:00.694 182 packages are looking for funding
+23:22:00.695   run `npm fund` for details
+23:22:00.730 Detected Next.js version: 14.2.33
+23:22:00.737 Running "npm run build"
+23:22:01.096 
+23:22:01.097 > hiring-agent-frontend@1.0.0 build
+23:22:01.097 > next build
+23:22:01.098 
+23:22:01.807   ▲ Next.js 14.2.33
+23:22:01.809 
+23:22:01.859    Creating an optimized production build ...
+23:22:02.467  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
+23:22:08.509  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
+23:22:09.453  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
+23:22:15.742  ✓ Compiled successfully
+23:22:15.743    Linting and checking validity of types ...
+23:22:21.439 Failed to compile.
+23:22:21.439 
+23:22:21.439 ./app/page.tsx:64:39
+23:22:21.439 Type error: 'error' is of type 'unknown'.
+23:22:21.439 
+23:22:21.439 [0m [90m 62 |[39m       }[0m
+23:22:21.440 [0m [90m 63 |[39m     } [36mcatch[39m (error) {[0m
+23:22:21.440 [0m[31m[1m>[22m[39m[90m 64 |[39m       setProcessingResult([32m`❌ Error: ${error.message}`[39m)[33m;[39m[0m
+23:22:21.440 [0m [90m    |[39m                                       [31m[1m^[22m[39m[0m
+23:22:21.440 [0m [90m 65 |[39m     } [36mfinally[39m {[0m
+23:22:21.440 [0m [90m 66 |[39m       setIsProcessing([36mfalse[39m)[33m;[39m[0m
+23:22:21.440 [0m [90m 67 |[39m     }[0m
+23:22:21.461 Next.js build worker exited with code: 1 and signal: null
+23:22:21.479 Error: Command "npm run build" exited with 1

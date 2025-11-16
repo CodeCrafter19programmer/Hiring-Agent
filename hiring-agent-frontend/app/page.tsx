@@ -61,7 +61,8 @@ export default function AdminDashboard() {
         setProcessingResult(`❌ Failed to trigger workflow: ${result.data.error || 'Unknown error'}`);
       }
     } catch (error) {
-      setProcessingResult(`❌ Error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      setProcessingResult(`❌ Error: ${message}`);
     } finally {
       setIsProcessing(false);
     }

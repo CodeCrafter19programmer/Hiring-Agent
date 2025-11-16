@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase, User, AuthResponse } from './supabase';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
@@ -32,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event: AuthChangeEvent, session: Session | null) => {
         if (session?.user) {
           setUser({
             id: session.user.id,
@@ -70,8 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return { user: null, session: null, error: 'Authentication failed' };
     } catch (error) {
-      console.error('Sign in error:', error);
-      return { user: null, session: null, error: error.message };
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Sign in error:', message);
+      return { user: null, session: null, error: message };
     }
   };
 
@@ -80,7 +82,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await supabase.auth.signOut();
       setUser(null);
     } catch (error) {
-      console.error('Sign out error:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Sign out error:', message);
     }
   };
 
