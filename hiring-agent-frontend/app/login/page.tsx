@@ -3,17 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/lib/auth-context";
+import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "recruiter">("recruiter");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -23,12 +21,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn(email, password, role);
-      if (result.error) {
-        setError(result.error);
-      } else {
-        router.push("/");
-      }
+      await auth.login(email, password);
+      router.push("/");
     } catch (err: any) {
       setError(err.message || "Login failed");
     } finally {
@@ -57,19 +51,6 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)} 
               required 
             />
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium mb-2">Role</label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value as "admin" | "recruiter")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                required
-              >
-                <option value="recruiter">Recruiter</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
             {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
             <Button type="submit" className="w-full" isLoading={loading}>
               Login
@@ -77,6 +58,10 @@ export default function LoginPage() {
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             <Link href="#" className="text-blue-600 hover:underline">Forgot Password?</Link>
+          </p>
+          <p className="mt-2 text-center text-sm text-muted-foreground">
+            Don't have an account?{' '}
+            <Link href="/register" className="text-blue-600 hover:underline">Register</Link>
           </p>
         </div>
       </Card>

@@ -7,6 +7,7 @@ import { RegisterSchema, LoginSchema } from '../models/userModel.js';
 
 const router = Router();
 
+router.post('/register', validate(RegisterSchema), asyncHandler(AuthController.register));
 router.post('/login', validate(LoginSchema), asyncHandler(AuthController.login));
 router.post('/logout', authenticate, asyncHandler(AuthController.logout));
 router.get('/me', authenticate, asyncHandler(AuthController.me));
